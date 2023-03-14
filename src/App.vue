@@ -1,35 +1,17 @@
-<script setup>
-import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
-import LogoSVG from "./assets/logo.svg?component";
-</script>
-
 <template>
-  <header>
-    <LogoSVG alt="Vite logo" class="logo" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+  <header></header>
 
   <RouterView />
 </template>
+
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+</script>
 
 <style scoped>
 header {
   line-height: 1.5;
   max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
 }
 
 nav {
