@@ -1,23 +1,29 @@
 <template>
   <div class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
     <video
-      v-if="course.meta.courseVideoPreview"
-      ref="video"
-      class="video-js"
-      @mouseover="playVideo"
-      width="600"
-      height="130"
-      muted
-      :poster="previewImageLink"
+        v-if="course.meta.courseVideoPreview"
+        ref="video"
+        class="video-js"
+        :src="course.meta.courseVideoPreview.link"
+        width="300"
+        height="130"
+        muted
+        :poster="previewImageLink"
+        :id="course.meta.slug"
+        type="application/x-mpegURL"
+        controls
+        preload="auto"
+        data-setup="{}"
+        @mouseleave="stopVideo"
     />
-<!--      @mouseleave="stopVideo"-->
-<!--      :src="course.meta.courseVideoPreview.link"-->
+    <!--    <video  class="video-js vjs-fluid vjs-default-skin" controls preload="auto" </video>-->
 
     <img
-      v-else
-      class="rounded-t-lg"
-      :src="previewImageLink"
-      :alt="course.title"
+        v-else
+        class="rounded-t-lg"
+        :src="previewImageLink"
+        :alt="course.title"
+        @mouseover="playVideo"
     />
 
     <div class="flex flex-col items-start justify-between p-5">
@@ -53,7 +59,7 @@ import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
 import IconArrow from "../icons/IconArrow.vue";
 import type { ICourse } from "@/components/courses/CourseItem.types";
-import Hls from "hls.js";
+import videojs from "video.js";
 
 export default defineComponent({
   name: "CourseItem",
@@ -68,29 +74,10 @@ export default defineComponent({
     const video = ref<HTMLVideoElement | null>(null);
     const videoElement = ref(null);
     const paused = ref(null);
+
     const playVideo = () => {
-      if (!video.value) {
-        return
-      }
-
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource('https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8');
-        hls.attachMedia(video.value);
-        const playPromise = video.value.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(_ => {
-            video.value && video.value.pause();
-          })
-          .catch(error => {});
-        }
-      } else if (video.value.canPlayType('application/vnd.apple.mpegurl')) {
-        video.value.src = 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8';
-        video.value.addEventListener('loadedmetadata', () => {
-          video.value && video.value.play();
-        });
-      }
+      const player = videojs(props.course.meta.slug);
+      player.play();
     };
     const stopVideo = () => {
       if (!video.value) {
