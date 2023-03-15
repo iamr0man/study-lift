@@ -7,6 +7,9 @@ import svgLoader from "vite-svg-loader";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 8080,
+  },
   plugins: [vue(), svgLoader()],
   resolve: {
     alias: {
