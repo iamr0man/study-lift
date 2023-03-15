@@ -1,29 +1,21 @@
 <template>
   <div class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
     <video
-        v-if="course.meta.courseVideoPreview"
-        ref="video"
-        class="video-js"
-        :src="course.meta.courseVideoPreview.link"
-        width="300"
-        height="130"
-        muted
-        :poster="previewImageLink"
-        :id="course.meta.slug"
-        type="application/x-mpegURL"
-        controls
-        preload="auto"
-        data-setup="{}"
-        @mouseleave="stopVideo"
+      ref="video"
+      :class="{ 'z-10': !paused }"
+      :src="course.meta.courseVideoPreview.link"
+      :id="course.meta.slug"
+      type="application/x-mpegURL"
+      class="absolute min-w-[373px] max-h-[165px]"
+      muted
+      @mouseleave="stopVideo"
     />
-    <!--    <video  class="video-js vjs-fluid vjs-default-skin" controls preload="auto" </video>-->
-
     <img
-        v-else
-        class="rounded-t-lg"
-        :src="previewImageLink"
-        :alt="course.title"
-        @mouseover="playVideo"
+      :class="{ 'opacity-0': !paused }"
+      :src="previewImageLink"
+      :alt="course.title"
+      class="rounded-t-lg"
+      @mouseenter="playVideo"
     />
 
     <div class="flex flex-col items-start justify-between p-5">
@@ -60,6 +52,7 @@ import type { PropType } from "vue";
 import IconArrow from "../icons/IconArrow.vue";
 import type { ICourse } from "@/components/courses/CourseItem.types";
 import videojs from "video.js";
+import axios from "axios";
 
 export default defineComponent({
   name: "CourseItem",
@@ -70,21 +63,48 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props) {
+  async setup(props) {
     const video = ref<HTMLVideoElement | null>(null);
     const videoElement = ref(null);
-    const paused = ref(null);
+    const paused = ref(true);
+
+    const videoStream = await axios.get(props.course.meta.courseVideoPreview.link)
+    const actualLink = videoStream.data.split('\n').filter((row: string) => row.startsWith('preview'))[0]
 
     const playVideo = () => {
-      const player = videojs(props.course.meta.slug);
-      player.play();
+      paused.value = false
+
+      const player = videojs(props.course.meta.slug, {
+        controls: false,
+        autoplay: false,
+        preload: 'auto'
+      });
+
+      const linkOriginal = props.course.meta.courseVideoPreview.link.split('/preview.')[0]
+      const src = linkOriginal + '/' + actualLink
+
+      player.src({
+        src,
+        type: 'application/x-mpegURL'
+      });
+
+      const playPromise = player.play();
+
+      if (playPromise !== undefined) {
+        playPromise.then(function() {}).catch(function(error) {});
+      }
     };
     const stopVideo = () => {
-      if (!video.value) {
+      const player = videojs(props.course.meta.slug);
+      if (!player) {
         return
       }
-      video.value.pause();
-      video.value.currentTime = 0;
+
+      player.dimensions('0', '0')
+
+      player.pause();
+      paused.value = true;
+      player.currentTime(0)
     };
 
     return {
@@ -137,6 +157,13 @@ export default defineComponent({
 
 .preview:hover {
   opacity: 1;
+}
+
+.vjs-control-bar,
+.vjs-modal-dialog,
+.vjs-loading-spinner,
+.vjs-big-play-button {
+  display: none !important;
 }
 
 </style>
