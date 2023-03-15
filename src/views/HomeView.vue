@@ -1,5 +1,5 @@
 <template>
-  <main class="grid grid-cols-2 gap-y-40 gap-x-40">
+  <main class="grid grid-cols-3 gap-y-12 gap-x-12">
     <CourseItem
       v-for="course in courses"
       :key="course.id"
@@ -17,12 +17,12 @@ import CourseItem from "@/components/courses/CourseItem.vue";
 export default defineComponent({
   components: { CourseItem },
   async setup () {
-    const { data } = await axios.get<ICourse.Item[]>('/core/preview-courses')
+    const { data } = await axios.get<ICourse.Response>('/core/preview-courses')
 
     return {
-      courses: data
+      courses: data.courses
     }
-  }
+  },
  })
 </script>
 

@@ -23,4 +23,7 @@ export namespace ICourse {
 			previewImageLink: string;
 		}
 	}
+	export interface Response {
+		courses: Item[]
+	}
 }
