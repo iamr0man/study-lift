@@ -35,7 +35,7 @@
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
 import IconArrow from "../icons/IconArrow.vue";
-import type { ICourse } from "@/components/cources/CourseItem.types";
+import type { ICourse } from "@/components/courses/CourseItem.types";
 
 export default defineComponent({
   name: "CourseItem",

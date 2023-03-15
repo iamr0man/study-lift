@@ -1,10 +1,12 @@
 import axiosOriginal from 'axios';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { getLocalAccessToken } from "@/utils/auth";
 
-const baseURL = `${import.meta.env.API_BASE_URL}{import.meta.env.API_VERSION}`
+const baseURL = `${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_API_VERSION}`
+
 export const axiosOptions: AxiosRequestConfig = {
   withCredentials: true,
-  baseURL,
+  baseURL
 };
 
 const axiosWithoutRequestInterceptor = axiosOriginal.create(axiosOptions);
@@ -12,6 +14,7 @@ const axios: AxiosInstance = axiosOriginal.create(axiosOptions);
 
 axios.interceptors.request.use(
   async config => {
+    config.headers.Authorization = 'Bearer ' + getLocalAccessToken()
     return config;
   },
   error => {
