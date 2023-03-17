@@ -8,34 +8,29 @@
             :src="course.previewImageLink + '/cover.webp'"
             alt="image description"
           >
+          <div class="flex mt-12">
+            <SkillItem
+              v-for="(skill, skillIndex) in course.meta.skills"
+              :name="skill"
+              :index="skillIndex"
+            />
+          </div>
         </div>
         <div class="flex flex-col justify-between py-4 basis-2/5">
           <div>
             <div class="flex gap-x-4">
               <h1
-                class="text-4xl mb-4 font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+                class="text-5xl mb-4 font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">
                 {{ course.title }}</h1>
-              <div class="flex flex-col">
-                <span
-                  v-for="(tag, tagIndex) in course.tags"
-                  :key="tagIndex"
-                  class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"
-                >
-                  {{ tag }}
-                </span>
-              </div>
             </div>
             <p
               class="text-lg font-light text-gray-500 md:text-xl dark:text-gray-400"
             >
-              Deliver great service experiences
-              fast - without the complexity of traditional ITSM solutions.Accelerate critical development work and
-              deploy.
+              {{ course.description }}
             </p>
           </div>
           <div class="flex items-center gap-x-6">
             <Rating :rating="course.rating" size="large" color="text-yellow-300"/>
-            <p class="text-xl font-light text-gray-500 md:text-xl dark:text-gray-200">{{ course.rating }}</p>
           </div>
         </div>
       </div>
@@ -76,9 +71,10 @@ import { getCourses, getCourseById } from '@/database/courses.gateway';
 import Container from '@/components/ui/Container.vue';
 import Rating from '@/components/ui/Rating.vue';
 import VImage from '@/components/ui/VImage.vue';
+import SkillItem from "@/components/courses/SkillItem.vue";
 
 export default defineComponent({
-  components: { VImage, Rating, Container },
+  components: {SkillItem, VImage, Rating, Container },
   async setup() {
     const route = useRoute();
     const courses = await getCourses();
