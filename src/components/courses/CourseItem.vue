@@ -1,9 +1,11 @@
 <template>
-  <div class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+  <RouterLink
+    :to="course.meta.slug"
+    class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+  >
     <video
       ref="video"
       :class="{ 'z-10': !paused }"
-      :src="course.meta.courseVideoPreview.link"
       :id="course.meta.slug"
       type="application/x-mpegURL"
       class="absolute min-w-[373px] max-h-[165px]"
@@ -19,7 +21,7 @@
     />
 
     <div class="flex flex-col items-start justify-between p-5">
-      <a href="#">
+      <div>
         <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {{ course.title }}
         </h5>
@@ -37,13 +39,13 @@
             {{ course.tags.join(', ') }}
           </p>
         </div>
-      </a>
-      <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+      </div>
+      <button class="flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
         Read more
         <IconArrow />
-      </a>
+      </button>
     </div>
-  </div>
+  </RouterLink>
 </template>
 
 <script lang="ts">
@@ -52,7 +54,6 @@ import type { PropType } from "vue";
 import IconArrow from "../icons/IconArrow.vue";
 import type { ICourse } from "@/components/courses/CourseItem.types";
 import videojs from "video.js";
-import axios from "axios";
 
 export default defineComponent({
   name: "CourseItem",
@@ -68,10 +69,12 @@ export default defineComponent({
     const videoElement = ref(null);
     const paused = ref(true);
 
-    const videoStream = await axios.get(props.course.meta.courseVideoPreview.link)
-    const actualLink = videoStream.data.split('\n').filter((row: string) => row.startsWith('preview'))[0]
-
     const playVideo = () => {
+      const isAvailable = props.course.meta.courseVideoPreview.duration > 0
+      if (!isAvailable) {
+        return
+      }
+
       paused.value = false
 
       const player = videojs(props.course.meta.slug, {
@@ -80,18 +83,17 @@ export default defineComponent({
         preload: 'auto'
       });
 
-      const linkOriginal = props.course.meta.courseVideoPreview.link.split('/preview.')[0]
-      const src = linkOriginal + '/' + actualLink
+      const linkOriginal = props.course.meta.courseVideoPreview.link
 
       player.src({
-        src,
+        src: linkOriginal,
         type: 'application/x-mpegURL'
       });
 
       const playPromise = player.play();
 
       if (playPromise !== undefined) {
-        playPromise.then(function() {}).catch(function(error) {});
+        playPromise.then(() => {}).catch(() => {});
       }
     };
     const stopVideo = () => {
@@ -99,8 +101,6 @@ export default defineComponent({
       if (!player) {
         return
       }
-
-      player.dimensions('0', '0')
 
       player.pause();
       paused.value = true;
