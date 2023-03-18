@@ -1,23 +1,22 @@
 <template>
   <RouterLink
-    :to="course.meta.slug"
-    class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    :to="course.id"
+    class="border bg-opacity-50 rounded-lg shadow dark:border-gray-700"
+    @mouseleave="stopVideo"
+    @mouseenter="playVideo"
   >
     <video
-      ref="video"
       :class="videoClasses"
       :id="course.meta.slug"
       type="application/x-mpegURL"
-      class="absolute min-w-[373px] max-h-[165px]"
+      class="absolute min-w-[373px] max-h-[163px]"
       muted
-      @mouseleave="stopVideo"
     />
     <img
       :class="imagePreviewClasses"
       :src="previewImageLink"
       :alt="course.title"
-      class="rounded-t-lg h-[165px] object-contain mx-auto"
-      @mouseenter="playVideo"
+      class="rounded-t-lg h-[163px] object-contain mx-auto"
     />
 
     <div class="flex flex-col items-start justify-between p-5">
@@ -54,71 +53,24 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
-import IconArrow from "../icons/IconArrow.vue";
-import type { ICourse } from "@/components/courses/CourseItem.types";
-import videojs from "video.js";
+import IconArrow from "@/components/icons/IconArrow.vue";
+import type { ICourse } from "@/types/ICourse.types";
 import Rating from "@/components/ui/Rating.vue";
+import Hls from "hls.js";
 
 export default defineComponent({
   name: "CourseItem",
   components: {Rating, IconArrow},
   props: {
     course: {
-      type: Object as PropType<ICourse.Item>,
+      type: Object as PropType<ICourse.ShortPreview>,
       required: true
     }
   },
-  async setup(props) {
-    const video = ref<HTMLVideoElement | null>(null);
-    const videoElement = ref(null);
-    const paused = ref(true);
-
-    const playVideo = () => {
-      const isAvailable = props.course.meta.courseVideoPreview.duration > 0
-      if (!isAvailable) {
-        return
-      }
-
-      paused.value = false
-
-      const player = videojs(props.course.meta.slug, {
-        controls: false,
-        autoplay: false,
-        preload: 'auto'
-      });
-
-      const linkOriginal = props.course.meta.courseVideoPreview.link
-
-      player.src({
-        src: linkOriginal,
-        type: 'application/x-mpegURL'
-      });
-
-      const playPromise = player.play();
-
-      if (playPromise !== undefined) {
-        playPromise.then(() => {}).catch(() => {});
-      }
-    };
-    const stopVideo = () => {
-      const player = videojs(props.course.meta.slug);
-      if (!player) {
-        return
-      }
-
-      player.pause();
-      paused.value = true;
-      player.currentTime(0)
-    };
-
-    return {
-      video,
-      videoElement,
-      paused,
-      playVideo,
-      stopVideo,
-    };
-  },
+  data: () => ({
+    hls: new Hls(),
+    paused: true,
+  }),
   computed: {
     previewImageLink () {
       return this.course.previewImageLink + '/cover.webp'
@@ -129,6 +81,48 @@ export default defineComponent({
     imagePreviewClasses () {
       return { 'opacity-0': !this.paused }
     }
+  },
+  unmounted() {
+    if (this.hls) {
+      this.hls.destroy();
+    }
+  },
+  methods: {
+    playVideo () {
+      const isAvailable = this.course.meta.courseVideoPreview.duration > 0
+      if (!isAvailable) {
+        return
+      }
+
+      this.paused = false
+
+      const linkOriginal = this.course.meta.courseVideoPreview.link
+      const video = document.getElementById(this.course.meta.slug) as HTMLMediaElement | null;
+      if (!video) {
+        return
+      }
+
+      if (Hls.isSupported()) {
+        this.hls.loadSource(linkOriginal);
+        this.hls.attachMedia(video);
+      }
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {}).catch(() => {});
+      }
+    },
+    stopVideo () {
+      const video = document.getElementById(this.course.meta.slug) as HTMLMediaElement | null;
+      if (!video) {
+        return
+      }
+
+      video.pause();
+      video.currentTime = 0
+
+      this.paused = true;
+    },
   },
 })
 </script>
