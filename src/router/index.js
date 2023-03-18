@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import Course from "@/views/Course.vue";
+import PageNotFound from "@/views/PageNotFound.vue";
 import { getLocalAccessToken, setLocalAccessToken, signIn } from "@/api/auth";
 
 const router = createRouter({
@@ -12,10 +13,12 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/:slug',
+      path: '/:id',
       name: "course",
       component: Course,
     },
+    { path: '/404', component: PageNotFound },
+    { path: '/:pathMatch(.*)*', component: PageNotFound },
   ],
 });
 
