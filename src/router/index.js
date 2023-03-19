@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
-import Course from "@/views/Course.vue";
-import PageNotFound from "@/views/PageNotFound.vue";
+import Course from "@/views/CourseView.vue";
+import PageNotFound from "@/views/PageNotFoundView.vue";
 import { getLocalAccessToken, setLocalAccessToken, signIn } from "@/api/auth";
 
 const router = createRouter({
