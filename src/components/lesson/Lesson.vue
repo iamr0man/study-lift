@@ -13,7 +13,7 @@
                 playsinline
                 controls
                 :tabindex="tabbingIndex"
-                @keydown.down.up="changeVideoSpeed"
+                @keydown="changeVideoSpeed"
               />
               <p class="mx-auto mt-1 text-center">
                 To change the speed of a video using the keyboard, you can use the "Arrow Up" key to increase the speed and the "Arrow Down" key to decrease it.

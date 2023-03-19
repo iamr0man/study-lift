@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { getCourseById } from '@/database/courses.gateway';
 import Container from '@/components/ui/Container.vue';
 import Rating from '@/components/ui/Rating.vue';
@@ -47,7 +47,12 @@ import SkillItem from "@/components/lesson/SkillItem.vue";
 import Lesson from "@/components/lesson/Lesson.vue";
 
 export default defineComponent({
-  components: {Lesson, SkillItem, Rating, Container },
+  components: {
+    Lesson,
+    SkillItem,
+    Rating,
+    Container
+  },
   async setup() {
     const route = useRoute();
 

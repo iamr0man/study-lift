@@ -22,17 +22,10 @@ axios.interceptors.request.use(
   },
 );
 
-const responseInterceptor = (error: any) => {
-  if (error.response?.status === 401) {}
-
-  return error.response;
-};
-
-axios.interceptors.response.use(response => response, responseInterceptor);
+axios.interceptors.response.use(response => response);
 
 axiosWithoutRequestInterceptor.interceptors.response.use(
   response => response,
-  responseInterceptor,
 );
 
 export { axios, axiosWithoutRequestInterceptor };

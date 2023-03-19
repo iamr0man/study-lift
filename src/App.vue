@@ -1,20 +1,38 @@
 <template>
-  <Suspense>
-    <template #default>
-      <RouterView v-slot="{ Component }">
-        <transition name="scale">
-          <component :is="Component" />
-        </transition>
-      </RouterView>
-    </template>
-    <template #fallback>
-      <span>Loading...</span>
-    </template>
-  </Suspense>
+  <div>
+    <NotFound v-if="error" />
+    <Suspense>
+      <template #default>
+        <RouterView v-slot="{ Component }">
+          <transition name="scale">
+            <component :is="Component" />
+          </transition>
+        </RouterView>
+      </template>
+      <template #fallback>
+        <span>Loading...</span>
+      </template>
+    </Suspense>
+  </div>
 </template>
 
-<script setup>
+<script lang="ts">
 import { RouterView } from "vue-router";
+import { defineComponent } from "vue";
+import NotFound from "@/components/error/NotFound.vue";
+
+export default defineComponent({
+  components: {
+    RouterView,
+    NotFound
+  },
+  data: () => ({
+    error: false
+  }),
+  errorCaptured () {
+    this.error = true
+  },
+})
 </script>
 
 <style>
