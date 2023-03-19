@@ -1,13 +1,13 @@
 <template>
   <Container>
-    <div class="flex gap-12 mb-8">
+    <div class="flex gap-12 mb-8 tablet:flex-col">
       <div class="basis-3/5">
         <img
           class="h-auto w-full rounded-lg"
           :src="course.previewImageLink + '/cover.webp'"
           alt="image description"
         >
-        <div class="flex mt-12">
+        <div class="flex mt-12 gap-x-2 gap-y-2 mobile:flex-wrap">
           <SkillItem
             v-for="(skill, skillIndex) in course.meta.skills"
             :name="skill"
@@ -19,7 +19,7 @@
         <div>
           <div class="flex gap-x-4">
             <h1
-              class="text-5xl mb-4 font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">
+              class="text-5xl mb-4 font-extrabold leading-none tracking-tight text-gray-900 mobile:text-4xl dark:text-white">
               {{ course.title }}</h1>
           </div>
           <p

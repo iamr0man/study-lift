@@ -1,9 +1,9 @@
 <template>
   <div class="PageLesson min-h-screen">
     <div class="relative flex flex-col flex-1 h-full">
-      <div class="flex py-12 gap-x-8">
-        <div class="basis-8/12 bg-blue-1100">
-          <div class="relative block min-h-[540px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+      <div class="flex py-12 gap-x-8 tablet:flex-col">
+        <div class="basis-8/12 bg-blue-1100 tablet:mb-4">
+          <div class="relative block min-h-[540px] bg-white border border-gray-200 rounded-lg shadow tablet:min-h-[200px] dark:bg-gray-800 dark:border-gray-700">
             <div class="p-4">
               <video
                 :ref="videoRefName"
@@ -15,7 +15,7 @@
                 :tabindex="tabbingIndex"
                 @keydown="changeVideoSpeed"
               />
-              <p class="mx-auto mt-1 text-center">
+              <p class="mx-auto mt-1 text-center mobile:hidden">
                 To change the speed of a video using the keyboard, you can use the "Arrow Up" key to increase the speed and the "Arrow Down" key to decrease it.
               </p>
             </div>

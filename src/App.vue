@@ -1,12 +1,13 @@
 <template>
   <div>
-    <NotFound v-if="error" />
     <Suspense>
       <template #default>
         <RouterView v-slot="{ Component }">
-          <transition name="scale">
-            <component :is="Component" />
-          </transition>
+          <ErrorBoundary>
+            <transition name="scale">
+              <component :is="Component" />
+            </transition>
+          </ErrorBoundary>
         </RouterView>
       </template>
       <template #fallback>
@@ -19,19 +20,13 @@
 <script lang="ts">
 import { RouterView } from "vue-router";
 import { defineComponent } from "vue";
-import NotFound from "@/components/error/NotFound.vue";
+import ErrorBoundary from "@/components/error/ErrorBoundary.vue";
 
 export default defineComponent({
   components: {
     RouterView,
-    NotFound
-  },
-  data: () => ({
-    error: false
-  }),
-  errorCaptured () {
-    this.error = true
-  },
+    ErrorBoundary,
+  }
 })
 </script>
 

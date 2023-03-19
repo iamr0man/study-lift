@@ -19,7 +19,7 @@
       class="rounded-t-lg h-[163px] object-contain mx-auto"
     />
 
-    <div class="flex flex-col items-start justify-between p-5">
+    <div class="flex h-[60%] flex-col items-start justify-between p-5">
       <div>
         <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {{ course.title }}
@@ -89,7 +89,7 @@ export default defineComponent({
   },
   methods: {
     playVideo () {
-      const isAvailable = this.course.meta.courseVideoPreview.duration > 0
+      const isAvailable = this.course.meta.courseVideoPreview && this.course.meta.courseVideoPreview.duration > 0
       if (!isAvailable) {
         return
       }
