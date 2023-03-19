@@ -15,13 +15,25 @@
                 :tabindex="tabbingIndex"
                 @keydown="changeVideoSpeed"
               />
-              <p class="mx-auto mt-1 text-center mobile:hidden">
-                To change the speed of a video using the keyboard, you can use the "Arrow Up" key to increase the speed and the "Arrow Down" key to decrease it.
-              </p>
+              <div class="mt-2 flex justify-between items-center">
+                <p class="basis-4/6 mt-1 mobile:hidden">
+                  To change the speed of a video using the keyboard, you can use the "Arrow Up" key to increase the speed and the "Arrow Down" key to decrease it.
+                </p>
+                <button
+                  type="button"
+                  class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  @click="togglePictureInPicture"
+                >
+                  Toggle picture-in-picture
+                </button>
+              </div>
             </div>
             <LockedLayer v-if="!unlocked" />
             <NotFoundLayer v-if="notFound" />
-            <PlaybackSpeedLayer :show="speedChanged" :speed="speed" />
+            <PlaybackSpeedLayer
+              :show="speedChanged"
+              :speed="speed"
+            />
           </div>
         </div>
         <ul class="max-h-[540px] text-scroll overflow-y-scroll basis-4/12 p-4 block bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -119,6 +131,14 @@ export default defineComponent({
     }
   },
   methods: {
+    togglePictureInPicture() {
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        const video = this.$refs['selected-video'] as HTMLVideoElement;
+        video.requestPictureInPicture();
+      }
+    },
     changeVideoSpeed (event: KeyboardEvent) {
       const ArrowUpKey = 'ArrowUp'
       const ArrowDownKey = 'ArrowDown'
@@ -166,7 +186,7 @@ export default defineComponent({
         localStorage.setItem(this.currentLesson.id + DURATION_TIME_KEY, currentTime);
       });
 
-      if (!this.unlocked || this.notFound) {
+      if ((!this.unlocked || this.notFound)) {
         this.hls.destroy()
         this.hls = new Hls()
         return

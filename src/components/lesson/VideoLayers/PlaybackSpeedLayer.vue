@@ -24,7 +24,10 @@ export default {
   },
   computed: {
     dynamicClasses () {
-      return this.show ? 'opacity-100 z-20' : 'opacity-0'
+      return {
+        'visible opacity-100 z-20': this.show,
+        'invisible opacity-0 -z-1': !this.show
+      }
     }
   },
 }
