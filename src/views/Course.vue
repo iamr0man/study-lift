@@ -43,8 +43,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { getCourseById } from '@/database/courses.gateway';
 import Container from '@/components/ui/Container.vue';
 import Rating from '@/components/ui/Rating.vue';
-import SkillItem from "@/components/courses/SkillItem.vue";
-import Lesson from "@/components/courses/Lesson.vue";
+import SkillItem from "@/components/lesson/SkillItem.vue";
+import Lesson from "@/components/lesson/Lesson.vue";
 
 export default defineComponent({
   components: {Lesson, SkillItem, Rating, Container },

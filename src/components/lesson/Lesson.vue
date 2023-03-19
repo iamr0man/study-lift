@@ -3,30 +3,28 @@
     <div class="relative flex flex-col flex-1 h-full">
       <div class="flex py-12 gap-x-8">
         <div class="basis-8/12 bg-blue-1100">
-          <div class="relative block min-h-[490px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-            <video
-              id="selected-video"
-              class="w-full max-w-full p-4"
-              :poster="posterPreviewLink"
-              playsinline
-              controls
-              :tabindex="tabbingIndex"
-            />
-            <div v-if="!unlocked" class="flex flex-col absolute bg-black top-0 left-0 w-full h-full flex items-center justify-center rounded-lg z-1">
-              <svg width="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path>
-              </svg>
-              <p class="text-lg font-bold">No access</p>
+          <div class="relative block min-h-[540px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <div class="p-4">
+              <video
+                :ref="videoRefName"
+                id="selected-video"
+                class="w-full max-w-full z-10"
+                :poster="posterPreviewLink"
+                playsinline
+                controls
+                :tabindex="tabbingIndex"
+                @keydown.down.up="changeVideoSpeed"
+              />
+              <p class="mx-auto mt-1 text-center">
+                To change the speed of a video using the keyboard, you can use the "Arrow Up" key to increase the speed and the "Arrow Down" key to decrease it.
+              </p>
             </div>
-            <div v-if="notFound" class="flex flex-col absolute bg-black top-0 left-0 w-full h-full flex items-center justify-center rounded-lg z-1">
-              <svg width="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path>
-              </svg>
-              <p class="text-lg font-bold">Not found</p>
-            </div>
+            <LockedLayer v-if="!unlocked" />
+            <NotFoundLayer v-if="notFound" />
+            <PlaybackSpeedLayer :show="speedChanged" :speed="speed" />
           </div>
         </div>
-        <ul class="max-h-[490px] text-scroll overflow-y-scroll basis-4/12 p-4 block bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <ul class="max-h-[540px] text-scroll overflow-y-scroll basis-4/12 p-4 block bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <LessonItem
             v-for="lesson in lessons"
             :key="lesson.order"
@@ -45,13 +43,22 @@ import type { PropType } from 'vue'
 import { defineComponent } from 'vue';
 import Container from '@/components/ui/Container.vue';
 import type { ICourse } from "@/types/ICourse.types";
-import LessonItem from "@/components/courses/LessonItem.vue";
+import LessonItem from "@/components/lesson/LessonItem.vue";
 import Hls from 'hls.js'
+import NotFoundLayer from "@/components/lesson/VideoLayers/NotFoundLayer.vue";
+import LockedLayer from "@/components/lesson/VideoLayers/LockedLayer.vue";
+import PlaybackSpeedLayer from "@/components/lesson/VideoLayers/PlaybackSpeedLayer.vue";
 
 const DURATION_TIME_KEY = '--duration-time'
 
 export default defineComponent({
-  components: {LessonItem, Container },
+  components: {
+    PlaybackSpeedLayer,
+    LockedLayer,
+    NotFoundLayer,
+    LessonItem,
+    Container
+  },
   props: {
     course: {
       type: Object as PropType<ICourse.Item>,
@@ -61,7 +68,10 @@ export default defineComponent({
   data: () => ({
     hls: new Hls(),
     lessonNumber: 1,
-    notFound: false
+    notFound: false,
+    speed: 1,
+    speedChanged: false,
+    videoRefName: 'selected-video'
   }),
   computed: {
     lessons () {
@@ -89,6 +99,14 @@ export default defineComponent({
     },
     lessonNumber (newValue: number) {
       this.setSelectedLocal(newValue)
+    },
+    speed (newValue: number) {
+      this.speedChanged = true
+
+      const video = this.$refs['selected-video'] as HTMLMediaElement;
+      video.playbackRate = newValue;
+
+      setTimeout(() => this.speedChanged = false, 400)
     }
   },
   mounted () {
@@ -101,6 +119,28 @@ export default defineComponent({
     }
   },
   methods: {
+    changeVideoSpeed (event: KeyboardEvent) {
+      const ArrowUpKey = 'ArrowUp'
+      const ArrowDownKey = 'ArrowDown'
+
+      const MIN_RATE = 0.25
+      const MAX_RATE = 5
+
+      if (this.speed <= MIN_RATE || this.speed >= MAX_RATE) {
+        return
+      }
+
+      switch (event.key) {
+        case ArrowUpKey:
+          this.speed += MIN_RATE
+          break
+        case ArrowDownKey:
+          this.speed -= MIN_RATE
+          break
+        default:
+          break
+      }
+    },
     initSelectedLesson () {
       this.lessonNumber = Number(window.localStorage.getItem(this.courseLessonKey)) || 1
     },
@@ -116,10 +156,7 @@ export default defineComponent({
       return 0;
     },
     loadHlsPlayer () {
-      const video = document.querySelector('#selected-video') as HTMLMediaElement | null;
-      if (!video) {
-        return
-      }
+      const video = this.$refs[this.videoRefName] as HTMLMediaElement;
 
       video.addEventListener('timeupdate', () => {
         let currentTime = JSON.stringify(video.currentTime)

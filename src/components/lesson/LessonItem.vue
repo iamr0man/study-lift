@@ -30,11 +30,11 @@ export default defineComponent({
   },
   computed: {
     duration () {
-      return this.normalizeDuration(this.lesson.duration)
+      return this.formatDuration(this.lesson.duration)
     }
   },
   methods: {
-    normalizeDuration: formatDuration
+    formatDuration
   }
 })
 </script>
